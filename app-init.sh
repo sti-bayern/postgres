@@ -23,9 +23,9 @@ CREATE DATABASE app ENCODING 'UTF8';
 ALTER USER app WITH PASSWORD '$PGPASS';
 EOF
 
-    if [ -f /app.sql ]; then
+    if [ -f /import/app.sql ]; then
         su-exec app pg_ctl -o "-c listen_addresses='localhost'" -w start
-        su-exec app psql -f /app.sql app
+        su-exec app psql -f /import/app.sql app
         su-exec app pg_ctl -m fast -w stop
     fi
 else
