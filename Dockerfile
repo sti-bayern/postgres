@@ -10,6 +10,9 @@ LABEL maintainer="Günther Morhart"
 ENV PGDATA=/data \
     PGPASS=app
 
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.4/main' > /etc/apk/repositories
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.4/community' >> /etc/apk/repositories
+
 #
 # Setup
 #
