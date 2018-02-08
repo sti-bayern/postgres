@@ -8,6 +8,7 @@ if [ -z "$(ls -A /data)" ]; then
     cat >> /data/postgresql.conf << EOF
 listen_addresses='*'
 log_directory = '/var/log/app'
+standard_conforming_strings = 'off'
 EOF
 
     cat > /data/pg_hba.conf << EOF
