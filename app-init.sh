@@ -24,15 +24,11 @@ CREATE DATABASE app ENCODING 'UTF8';
 ALTER USER app WITH PASSWORD '$PGPASS';
 EOF
 
-    if [ $(ls -A /import/*.sql | wc -l) -gt 0 ]; then
+    if [ $(find /import \( -iname "*.sql" -o -iname "*.dump" \) | wc -l | wc -l) -gt 0 ]; then
         su-exec app pg_ctl -o "-c listen_addresses='localhost'" -w start
-        for dump in $(ls -A /import);
-        do
-            su-exec app psql -f /import/${dump} app
-        done 
+        find /import \( -iname "*.sql" -o -iname "*.dump" \) -exec su-exec app psql -f {} app \;
         su-exec app pg_ctl -m fast -w stop
     fi
-
 
 else
     find /data -type d -exec chmod 700 {} \;
