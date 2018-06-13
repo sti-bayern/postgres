@@ -25,11 +25,19 @@ CREATE DATABASE app ENCODING 'UTF8';
 ALTER USER app WITH PASSWORD '$PGPASS';
 EOF
 
+    # Dumps  einlesen
     if [ $(find /import \( -iname "*.sql" -o -iname "*.dump" \) | wc -l | wc -l) -gt 0 ]; then
         su-exec app pg_ctl -o "-c listen_addresses='localhost'" -w start
         find /import \( -iname "*.sql" -o -iname "*.dump" \) -exec su-exec app psql -f {} app \;
         su-exec app pg_ctl -m fast -w stop
     fi
+    # configs einlesen
+    for file in postgresql pg_hba;
+    do
+        if [ -f "/import/${file}.conf" ]; then
+            cp -va /import/${file}.conf /data/${file}.conf
+        fi
+    done 
 
 else
     find /data -type d -exec chmod 700 {} \;
