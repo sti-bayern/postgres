@@ -9,6 +9,7 @@ if [ -z "$(ls -A /data)" ]; then
 listen_addresses='*'
 log_directory = '/var/log/app'
 standard_conforming_strings = 'off'
+wal_level = logical
 EOF
 
     cat > /data/pg_hba.conf << EOF
