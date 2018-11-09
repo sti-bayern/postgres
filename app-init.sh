@@ -2,24 +2,31 @@
 
 set -e
 
-if [ -z "$(ls -A /data)" ]; then
-    su-exec app initdb -E UTF8 -U app
-
-    cat >> /data/postgresql.conf << EOF
+# Standard-postgresql.conf
+if [ ! -f /data/postgresql.conf ]; then
+cat >> /data/postgresql.conf << EOF
 listen_addresses='*'
 log_directory = '/var/log/app'
 standard_conforming_strings = 'off'
 wal_level = logical
 EOF
+fi
 
-    cat > /data/pg_hba.conf << EOF
+# Standard-pg_hba.conf
+if [ ! -f /data/pg_hba.conf ]; then
+cat > /data/pg_hba.conf << EOF
 local   all             all                                     peer
 host    all             all             127.0.0.1/32            md5
 host    all             all             ::1/128                 md5
 host    all             all             172.16.0.0/12           md5
 host    all             all             10.0.0.0/8              md5
 EOF
+fi
 
+# ggf. DB starten und Daten einlesen
+if [ "$(ls -lA /data | wc -l)" -le 3 ]; then
+
+    su-exec app initdb -E UTF8 -U app
     cat << EOF | su-exec app postgres --single postgres
 CREATE DATABASE app ENCODING 'UTF8';
 ALTER USER app WITH PASSWORD '$PGPASS';
@@ -31,13 +38,6 @@ EOF
         find /import \( -iname "*.sql" -o -iname "*.dump" \) -exec su-exec app psql -f {} app \;
         su-exec app pg_ctl -m fast -w stop
     fi
-    # configs einlesen
-    for file in postgresql pg_hba;
-    do
-        if [ -f "/import/${file}.conf" ]; then
-            cp -va /import/${file}.conf /data/${file}.conf
-        fi
-    done 
 
 else
     find /data -type d -exec chmod 700 {} \;
