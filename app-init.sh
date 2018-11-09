@@ -4,7 +4,10 @@ set -e
 
 # ggf. DB starten
 if [ "$(ls -lA /data | wc -l)" -le 3 ]; then
+    mkdir /tmp/pg_data
+    mv /data/* /tmp/pg_data/
     su-exec app initdb -E UTF8 -U app
+    mv /tmp/pg_data/*  /data/
 fi
 
 # Standard-postgresql.conf
