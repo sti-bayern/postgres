@@ -2,6 +2,11 @@
 
 set -e
 
+# ggf. DB starten
+if [ "$(ls -lA /data | wc -l)" -le 3 ]; then
+    su-exec app initdb -E UTF8 -U app
+fi
+
 # Standard-postgresql.conf
 if [ ! -f /data/postgresql.conf ]; then
 cat >> /data/postgresql.conf << EOF
@@ -23,10 +28,10 @@ host    all             all             10.0.0.0/8              md5
 EOF
 fi
 
-# ggf. DB starten und Daten einlesen
+# ggf. DB anlegen und Daten einlesen
 if [ "$(ls -lA /data | wc -l)" -le 3 ]; then
 
-    su-exec app initdb -E UTF8 -U app
+    # Datenbank anlegen
     cat << EOF | su-exec app postgres --single postgres
 CREATE DATABASE app ENCODING 'UTF8';
 ALTER USER app WITH PASSWORD '$PGPASS';
